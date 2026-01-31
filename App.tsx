@@ -65,7 +65,7 @@ const App: React.FC = () => {
       <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-punchy-yellow/5 blur-[120px] rounded-full pointer-events-none" />
 
       {/* Main Content Area */}
-      <main className="max-w-md mx-auto px-4 pt-6 animate-fadeIn">
+      <main className="w-full max-w-md mx-auto px-4 pt-6 pb-28 animate-fadeIn">
         {renderPage()}
       </main>
 

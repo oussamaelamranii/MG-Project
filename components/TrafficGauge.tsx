@@ -50,8 +50,9 @@ const TrafficGauge: React.FC<TrafficGaugeProps> = ({ percentage }) => {
             className="transition-all duration-1000 ease-out"
           />
         </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center transform rotate-90">
-          <span className="text-2xl font-black text-white">{percentage}%</span>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-3xl font-black text-white leading-none">{percentage}</span>
+          <span className="text-xs font-bold text-gray-400">%</span>
         </div>
       </div>
       <div className={`mt-4 text-sm font-bold uppercase tracking-widest ${colorClass}`}>

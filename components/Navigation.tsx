@@ -13,17 +13,19 @@ interface NavButtonProps {
 const NavButton: React.FC<NavButtonProps> = ({ active, onClick, icon: Icon, label }) => (
   <button
     onClick={onClick}
-    className={`flex flex-col items-center gap-1 transition-all duration-300 ${active ? 'text-punchy-yellow scale-110' : 'text-gray-500 hover:text-gray-300'}`}
+    className={`flex flex-col items-center justify-center gap-1 w-full h-16 rounded-2xl transition-all duration-300 relative ${active ? 'text-black' : 'text-gray-400 hover:text-white'}`}
   >
-    <Icon size={24} strokeWidth={active ? 3 : 2} />
-    <span className="text-[10px] font-bold uppercase tracking-wider">{label}</span>
-    {active && <div className="w-1 h-1 rounded-full bg-punchy-yellow mt-1 animate-pulse" />}
+    {active && (
+      <div className="absolute inset-x-2 inset-y-1 bg-punchy-yellow rounded-xl -z-10 animate-scaleIn" />
+    )}
+    <Icon size={20} strokeWidth={active ? 2.5 : 2} />
+    <span className="text-[9px] font-black uppercase tracking-wider">{label}</span>
   </button>
 );
 
 const Navigation: React.FC<{ activePage: Page; onNavigate: (page: Page) => void }> = ({ activePage, onNavigate }) => {
   return (
-    <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md bg-black/90 backdrop-blur-xl border-t border-white/10 px-6 py-4 pb-8 z-50 flex justify-around items-center safe-area-bottom rounded-t-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+    <nav className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[95%] max-w-md bg-black/60 backdrop-blur-2xl border border-white/10 px-2 py-2 z-50 flex justify-between items-center rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
       <NavButton
         active={activePage === Page.HOME}
         onClick={() => onNavigate(Page.HOME)}

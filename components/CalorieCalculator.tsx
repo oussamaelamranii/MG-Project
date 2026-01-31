@@ -56,7 +56,7 @@ const CalorieCalculator: React.FC<CalorieCalculatorProps> = ({ onClose }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-end md:items-center justify-center p-0 md:p-4 animate-fadeIn">
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[60] flex items-end md:items-center justify-center p-0 md:p-4 animate-fadeIn">
             <div className="bg-[#121212] w-full max-w-md rounded-t-3xl md:rounded-3xl border-t md:border border-white/10 overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
                 {/* Header */}
                 <div className="p-6 bg-gradient-to-r from-royal-blue/20 to-transparent flex justify-between items-center shrink-0">
