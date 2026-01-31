@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { X, Activity, Calculator, Flame, TrendingDown, TrendingUp } from 'lucide-react';
+import { X, Activity, Calculator, Flame, TrendingDown, TrendingUp, Scan, Camera } from 'lucide-react';
+import FuelGauge from './FuelGauge';
+import NutritionVision from './NutritionVision';
 
 interface CalorieCalculatorProps {
     onClose: () => void;
@@ -22,7 +24,17 @@ const CalorieCalculator: React.FC<CalorieCalculatorProps> = ({ onClose }) => {
     const [weight, setWeight] = useState<string>('');
     const [height, setHeight] = useState<string>('');
     const [activity, setActivity] = useState<ActivityLevel>('moderate');
+
     const [result, setResult] = useState<number | null>(null);
+    const [showVision, setShowVision] = useState(false);
+    const [currentCalories, setCurrentCalories] = useState(0); // Mock current daily intak
+
+    // Mock handler for logging from Vision
+    const handleLogFood = (food: any) => {
+        setCurrentCalories(prev => prev + food.calories);
+        setShowVision(false);
+        // In real app, would call backend API here
+    };
 
     const calculateCalories = () => {
         const w = parseFloat(weight);
@@ -57,15 +69,31 @@ const CalorieCalculator: React.FC<CalorieCalculatorProps> = ({ onClose }) => {
                             <p className="text-xs font-bold text-royal-blue uppercase tracking-widest">Estimator</p>
                         </div>
                     </div>
-                    <button
-                        onClick={onClose}
-                        className="text-gray-400 hover:text-white p-2 rounded-full active:bg-white/10 transition-colors"
-                    >
-                        <X size={24} />
-                    </button>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => setShowVision(true)}
+                            className="bg-punchy-yellow text-black px-3 py-2 rounded-xl font-bold uppercase text-xs flex items-center gap-2 hover:bg-yellow-400 transition-colors"
+                        >
+                            <Camera size={16} />
+                            Scan Meal
+                        </button>
+                        <button
+                            onClick={onClose}
+                            className="text-gray-400 hover:text-white p-2 rounded-full active:bg-white/10 transition-colors"
+                        >
+                            <X size={24} />
+                        </button>
+                    </div>
                 </div>
 
                 <div className="p-6 space-y-6 overflow-y-auto">
+                    {/* Fuel Gauge (Only shows if there is a target) */}
+                    {result && (
+                        <div className="animate-slideDown">
+                            <FuelGauge current={currentCalories} target={result} />
+                        </div>
+                    )}
+
                     {/* Inputs */}
                     <div className="space-y-4">
                         {/* Gender Switch */}
@@ -184,7 +212,17 @@ const CalorieCalculator: React.FC<CalorieCalculatorProps> = ({ onClose }) => {
                     )}
                 </div>
             </div>
-        </div>
+
+
+            {
+                showVision && (
+                    <NutritionVision
+                        onClose={() => setShowVision(false)}
+                        onLog={handleLogFood}
+                    />
+                )
+            }
+        </div >
     );
 };
 
