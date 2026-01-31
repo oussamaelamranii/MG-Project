@@ -1,0 +1,7 @@
+{
+  "name": "MGCLUB Fitness",
+  "description": "Premium family fitness app featuring real-time gym traffic, dynamic QR access, smart class booking, and digital performance tracking.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
