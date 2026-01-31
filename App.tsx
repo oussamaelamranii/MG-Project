@@ -29,6 +29,12 @@ const App: React.FC = () => {
     setIsAuthenticated(true);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('mgclub_session');
+    setIsAuthenticated(false);
+    setActivePage(Page.HOME);
+  };
+
   const renderPage = () => {
     switch (activePage) {
       case Page.HOME:
@@ -38,7 +44,7 @@ const App: React.FC = () => {
       case Page.COMMUNITY:
         return <Community />;
       case Page.PROFILE:
-        return <Profile />;
+        return <Profile onLogout={handleLogout} />;
       case Page.SHOP:
         return <Shop onBack={() => setActivePage(Page.HOME)} />;
       case Page.ARENA:

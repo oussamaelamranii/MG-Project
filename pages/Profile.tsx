@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Trophy, Settings, Flame, Star, Target, ChevronRight, Share2, Crown } from 'lucide-react';
+import { Trophy, Settings, Flame, Star, Target, ChevronRight, Share2, Crown, LogOut } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 const PROGRESS_DATA = [
@@ -12,7 +12,11 @@ const PROGRESS_DATA = [
   { month: 'Feb', value: 85 },
 ];
 
-const Profile: React.FC = () => {
+interface ProfileProps {
+  onLogout: () => void;
+}
+
+const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
   return (
     <div className="space-y-8 pb-12">
       {/* Header Profile Info */}
@@ -156,6 +160,14 @@ const Profile: React.FC = () => {
             <span className="text-sm font-bold uppercase tracking-wider">Points Marketplace</span>
           </div>
           <ChevronRight size={18} className="text-gray-600 group-hover:text-white transition-colors" />
+        </button>
+
+        <button
+          onClick={onLogout}
+          className="w-full bg-red-500/10 border border-red-500/20 p-4 rounded-2xl flex items-center justify-center gap-2 group active:bg-red-500/20 transition-colors mt-6"
+        >
+          <LogOut size={18} className="text-red-500" />
+          <span className="text-sm font-bold uppercase tracking-wider text-red-500">Sign Out</span>
         </button>
       </section>
     </div>
