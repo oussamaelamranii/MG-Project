@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { Zap, Trophy, TrendingUp, ShoppingBag, QrCode } from 'lucide-react';
+import { Zap, Trophy, TrendingUp, ShoppingBag, QrCode, Calculator } from 'lucide-react';
 import TrafficGauge from '../components/TrafficGauge';
+import CalorieCalculator from '../components/CalorieCalculator';
 
 import { Page } from '../types';
 
@@ -11,6 +12,8 @@ interface HomeProps {
 }
 
 const Home: React.FC<HomeProps> = ({ onOpenSmartPass, onNavigate }) => {
+  const [showCalculator, setShowCalculator] = React.useState(false);
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -103,6 +106,44 @@ const Home: React.FC<HomeProps> = ({ onOpenSmartPass, onNavigate }) => {
         </div>
       </section>
 
+      {/* Arena Card */}
+      <section className="relative overflow-hidden rounded-3xl h-48 group cursor-pointer" onClick={() => onNavigate(Page.ARENA)}>
+        <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=1000" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Arena Background" />
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/90 to-transparent" />
+        <div className="relative z-10 p-6 flex flex-col justify-center h-full">
+          <div className="flex items-center gap-2 mb-2">
+            <Trophy size={16} className="text-yellow-400" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-yellow-400">Weekly Challenge</span>
+          </div>
+          <h3 className="text-2xl font-black italic text-white leading-none mb-4">ENTER THE<br />ARENA</h3>
+          <button className="bg-white text-black px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest self-start shadow-lg active:scale-95 transition-transform">
+            View Leaderboard
+          </button>
+        </div>
+      </section>
+
+      {/* Tools Section */}
+      <section className="pb-8">
+        <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-4">Performance Tools</h3>
+        <button
+          onClick={() => setShowCalculator(true)}
+          className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center justify-between active:bg-white/10 transition-colors group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="bg-purple-500 p-3 rounded-xl text-white shadow-lg group-hover:scale-110 transition-transform">
+              <Calculator size={24} />
+            </div>
+            <div className="text-left">
+              <h4 className="font-bold text-base text-white">Calorie Estimator</h4>
+              <p className="text-xs text-gray-400">Calculate BMR & TDEE targets</p>
+            </div>
+          </div>
+          <div className="bg-white/10 p-2 rounded-full">
+            <TrendingUp size={16} />
+          </div>
+        </button>
+      </section>
+
       {/* Click & Collect Teaser */}
       <section className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/20 rounded-2xl p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -121,7 +162,8 @@ const Home: React.FC<HomeProps> = ({ onOpenSmartPass, onNavigate }) => {
           Shop
         </button>
       </section>
-    </div>
+      {showCalculator && <CalorieCalculator onClose={() => setShowCalculator(false)} />}
+    </div >
   );
 };
 

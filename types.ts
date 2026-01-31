@@ -35,7 +35,8 @@ export enum Page {
   COMMUNITY = 'community',
   SMART_PASS = 'smart-pass',
   LOGIN = 'login',
-  SHOP = 'shop'
+  SHOP = 'shop',
+  ARENA = 'arena'
 }
 
 export interface Supplement {
@@ -52,5 +53,23 @@ export interface Staff {
   role: string;
   image: string;
   available: boolean;
+}
+
+export interface LeaderboardEntry {
+  id: string;
+  name: string;
+  points: number;
+  tier: 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond';
+  avatar: string;
+}
+
+export interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: 'Easy' | 'Medium' | 'Hard' | 'Elite';
+  participants: number;
+  reward: string;
+  image: string;
 }
 

@@ -9,6 +9,7 @@ import SmartPass from './components/SmartPass';
 import SignIn from './pages/SignIn';
 import Community from './pages/Community';
 import Shop from './pages/Shop';
+import Arena from './pages/Arena';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -40,6 +41,8 @@ const App: React.FC = () => {
         return <Profile />;
       case Page.SHOP:
         return <Shop onBack={() => setActivePage(Page.HOME)} />;
+      case Page.ARENA:
+        return <Arena onBack={() => setActivePage(Page.HOME)} />;
       default:
         return <Home onOpenSmartPass={() => setShowSmartPass(true)} onNavigate={setActivePage} />;
     }
