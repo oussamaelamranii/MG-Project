@@ -25,7 +25,7 @@ const NavButton: React.FC<NavButtonProps> = ({ active, onClick, icon: Icon, labe
 
 const Navigation: React.FC<{ activePage: Page; onNavigate: (page: Page) => void }> = ({ activePage, onNavigate }) => {
   return (
-    <nav className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[95%] max-w-md bg-black/60 backdrop-blur-2xl border border-white/10 px-2 py-2 z-50 flex justify-between items-center rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+    <nav className="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-[90%] max-w-sm bg-[#121212]/80 backdrop-blur-xl border border-white/10 px-2 py-2 z-50 flex justify-between items-center rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-300 hover:border-white/20 hover:shadow-[0_8px_32px_rgba(255,215,0,0.05)]">
       <NavButton
         active={activePage === Page.HOME}
         onClick={() => onNavigate(Page.HOME)}

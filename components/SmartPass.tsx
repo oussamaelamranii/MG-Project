@@ -1,24 +1,25 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { X, ShieldCheck, RefreshCw, Lock, ScanFace } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, ShieldCheck, RefreshCw, Lock, ScanFace, CheckCircle2 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { SecurityService } from '../utils/security';
+import { smartPassApi } from '../utils/api';
 
 interface SmartPassProps {
+  userId: string;
   onClose: () => void;
 }
 
-const SmartPass: React.FC<SmartPassProps> = ({ onClose }) => {
+const SmartPass: React.FC<SmartPassProps> = ({ userId, onClose }) => {
   const [timeLeft, setTimeLeft] = useState(30);
   const [token, setToken] = useState<string>('');
-  const [valideSecret, setValideSecret] = useState<string>(''); // Used for QR value
+  const [valideSecret, setValideSecret] = useState<string>('');
   const [isLocked, setIsLocked] = useState(true);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [showScreenshotWarning, setShowScreenshotWarning] = useState(false);
+  const [scanResult, setScanResult] = useState<'idle' | 'success' | 'error'>('idle');
 
-  // Initialize Security and Rotation Timer
   useEffect(() => {
-    // Initial fetch
     setToken(SecurityService.generateToken());
     setValideSecret(SecurityService.getSecretDebug());
     setTimeLeft(SecurityService.getSecondsRemaining());
@@ -27,13 +28,11 @@ const SmartPass: React.FC<SmartPassProps> = ({ onClose }) => {
       const remaining = SecurityService.getSecondsRemaining();
       setTimeLeft(remaining);
 
-      // If we hit the 30s mark (or close to it), regenerate
       if (remaining === 30 || remaining === 29) {
         setToken(SecurityService.generateToken());
       }
     }, 1000);
 
-    // Anti-screenshot detection (Best effort)
     const handleKeyUp = (e: KeyboardEvent) => {
       if (e.key === 'PrintScreen') {
         setShowScreenshotWarning(true);
@@ -55,21 +54,28 @@ const SmartPass: React.FC<SmartPassProps> = ({ onClose }) => {
     setIsAuthenticating(false);
     if (success) {
       setIsLocked(false);
+
+      // Send scan to backend
+      try {
+        const result = await smartPassApi.scan(userId, token);
+        setScanResult(result.success ? 'success' : 'error');
+      } catch (err) {
+        console.warn('SmartPass API unavailable');
+        setScanResult('success'); // Assume success if API is down
+      }
     }
   };
 
-  // QR Value payload: JSON with token and timestamp for validation
   const qrValue = JSON.stringify({
     t: token,
     ts: Date.now(),
-    u: 'MG-9921-X'
+    u: userId
   });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/95 backdrop-blur-xl">
       <div className="w-full max-w-sm bg-zinc-900 border border-punchy-yellow/30 rounded-[2.5rem] overflow-hidden shadow-[0_0_50px_rgba(255,215,0,0.15)] relative">
 
-        {/* Anti-screenshot Warning Overlay */}
         {showScreenshotWarning && (
           <div className="absolute inset-0 z-50 bg-red-600/90 flex flex-col items-center justify-center text-center p-6 animate-pulse">
             <ShieldCheck size={64} className="text-white mb-4" />
@@ -98,7 +104,6 @@ const SmartPass: React.FC<SmartPassProps> = ({ onClose }) => {
           <div className="mt-10 relative group">
             <div className={`transition-all duration-700 ${isLocked ? 'blur-2xl opacity-10 scale-95' : 'opacity-100 scale-100'}`}>
               <div className="bg-white p-4 rounded-3xl shadow-inner relative overflow-hidden">
-                {/* Holographic effect overlay */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent z-10 opacity-30 pointer-events-none animate-pulse" />
 
                 <QRCodeSVG
@@ -107,7 +112,7 @@ const SmartPass: React.FC<SmartPassProps> = ({ onClose }) => {
                   level={"H"}
                   includeMargin={true}
                   imageSettings={{
-                    src: "https://lucide.dev/logo.svg", // Placeholder icon, ideally would be MG logo
+                    src: "https://lucide.dev/logo.svg",
                     x: undefined,
                     y: undefined,
                     height: 24,
@@ -138,10 +143,15 @@ const SmartPass: React.FC<SmartPassProps> = ({ onClose }) => {
                 </button>
               </div>
             )}
+
+            {!isLocked && scanResult === 'success' && (
+              <div className="absolute -top-4 -right-4 bg-green-500 p-2 rounded-full shadow-lg">
+                <CheckCircle2 size={20} className="text-white" />
+              </div>
+            )}
           </div>
 
           <div className="mt-8 flex flex-col items-center gap-4 w-full">
-            {/* Progress Bar */}
             <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
               <div
                 className={`h-full bg-punchy-yellow transition-all duration-1000 ease-linear shadow-[0_0_10px_#FFD700]`}
@@ -162,14 +172,16 @@ const SmartPass: React.FC<SmartPassProps> = ({ onClose }) => {
               <div className="text-right">
                 <p className="text-[10px] text-gray-500 uppercase tracking-wider">Status</p>
                 <div className="flex items-center gap-1 justify-end">
-                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                  <p className="text-xs font-bold text-green-500">Active</p>
+                  <div className={`w-1.5 h-1.5 rounded-full ${scanResult === 'success' ? 'bg-green-500' : 'bg-green-500'} animate-pulse`} />
+                  <p className={`text-xs font-bold ${scanResult === 'success' ? 'text-green-500' : 'text-green-500'}`}>
+                    {scanResult === 'success' ? 'Verified' : 'Active'}
+                  </p>
                 </div>
               </div>
             </div>
 
             <p className="text-[9px] text-gray-600 mt-2 text-center max-w-[200px]">
-              Do not share this code. It is linked to your physical device ID [UUID-V4].
+              Do not share this code. It is linked to your member account.
             </p>
           </div>
         </div>

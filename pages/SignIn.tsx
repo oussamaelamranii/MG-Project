@@ -1,31 +1,45 @@
 
 import React, { useState } from 'react';
-import { ShieldCheck, ArrowRight, Lock, User, Loader2 } from 'lucide-react';
+import { ShieldCheck, ArrowRight, Lock, Mail, User, Loader2, UserPlus } from 'lucide-react';
+import { authApi, ApiUser } from '../utils/api';
 
 interface SignInProps {
-    onLogin: () => void;
+    onLogin: (user: ApiUser) => void;
 }
 
 const SignIn: React.FC<SignInProps> = ({ onLogin }) => {
-    const [memberId, setMemberId] = useState('');
+    const [isRegister, setIsRegister] = useState(false);
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
         setIsLoading(true);
 
-        // Simulated API Call
-        setTimeout(() => {
-            if (memberId.length > 3 && password.length > 3) {
-                onLogin();
+        try {
+            let user: ApiUser;
+
+            if (isRegister) {
+                if (!name.trim()) {
+                    throw new Error('Please enter your name');
+                }
+                user = await authApi.register(name, email, password);
             } else {
-                setError('Invalid Member ID or Password');
-                setIsLoading(false);
+                user = await authApi.login(email, password);
             }
-        }, 1500);
+
+            // Store user data in localStorage
+            localStorage.setItem('mgclub_user', JSON.stringify(user));
+            localStorage.setItem('mgclub_session', 'active');
+            onLogin(user);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Authentication failed');
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -40,28 +54,50 @@ const SignIn: React.FC<SignInProps> = ({ onLogin }) => {
                     <div className="inline-block p-5 bg-white/5 rounded-full mb-6 border border-white/10 shadow-[0_0_40px_rgba(255,255,255,0.05)]">
                         <h1 className="text-5xl font-black italic text-punchy-yellow tracking-tighter">MG</h1>
                     </div>
-                    <h2 className="text-3xl font-bold text-white tracking-wide uppercase leading-none">Member<br /> Access</h2>
+                    <h2 className="text-3xl font-bold text-white tracking-wide uppercase leading-none">
+                        {isRegister ? 'Join' : 'Member'}<br />
+                        {isRegister ? 'MGCLUB' : 'Access'}
+                    </h2>
                 </div>
             </div>
 
             <div className="w-full max-w-sm mx-auto z-10 pb-8 safe-area-bottom">
                 {/* Form */}
-                <form onSubmit={handleLogin} className="space-y-4 animate-slideUp">
-                    {/* Member ID Input */}
+                <form onSubmit={handleSubmit} className="space-y-4 animate-slideUp">
+                    {/* Name Input (Register only) */}
+                    {isRegister && (
+                        <div className="group space-y-1.5">
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
+                            <div className="relative">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-punchy-yellow transition-colors">
+                                    <User size={20} />
+                                </div>
+                                <input
+                                    type="text"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="Your full name"
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-lg text-white placeholder-gray-600 focus:outline-none focus:border-punchy-yellow/50 focus:bg-white/10 transition-all shadow-sm"
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Email Input */}
                     <div className="group space-y-1.5">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Member ID</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Email</label>
                         <div className="relative">
                             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-punchy-yellow transition-colors">
-                                <User size={20} />
+                                <Mail size={20} />
                             </div>
                             <input
-                                type="text"
-                                inputMode="text"
-                                autoComplete="username"
+                                type="email"
+                                inputMode="email"
+                                autoComplete="email"
                                 enterKeyHint="next"
-                                value={memberId}
-                                onChange={(e) => setMemberId(e.target.value)}
-                                placeholder="MG-0000"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="member@mgclub.com"
                                 className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-lg text-white placeholder-gray-600 focus:outline-none focus:border-punchy-yellow/50 focus:bg-white/10 transition-all shadow-sm"
                             />
                         </div>
@@ -77,7 +113,7 @@ const SignIn: React.FC<SignInProps> = ({ onLogin }) => {
                             <input
                                 type="password"
                                 inputMode="text"
-                                autoComplete="current-password"
+                                autoComplete={isRegister ? "new-password" : "current-password"}
                                 enterKeyHint="go"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
@@ -102,12 +138,21 @@ const SignIn: React.FC<SignInProps> = ({ onLogin }) => {
                         {isLoading ? (
                             <>
                                 <Loader2 size={24} className="animate-spin" />
-                                Verifying...
+                                {isRegister ? 'Creating Account...' : 'Verifying...'}
                             </>
                         ) : (
                             <>
-                                Enter Club
-                                <ArrowRight size={24} />
+                                {isRegister ? (
+                                    <>
+                                        Create Account
+                                        <UserPlus size={24} />
+                                    </>
+                                ) : (
+                                    <>
+                                        Enter Club
+                                        <ArrowRight size={24} />
+                                    </>
+                                )}
                             </>
                         )}
                     </button>
@@ -118,8 +163,15 @@ const SignIn: React.FC<SignInProps> = ({ onLogin }) => {
                         <ShieldCheck size={12} />
                         Secure Connection • MGCLUB-NET
                     </div>
-                    <button type="button" className="text-gray-500 text-[11px] font-medium py-2 px-4 active:text-white transition-colors">
-                        Forgot credentials?
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setIsRegister(!isRegister);
+                            setError('');
+                        }}
+                        className="text-punchy-yellow text-[11px] font-bold py-2 px-4 active:opacity-70 transition-opacity"
+                    >
+                        {isRegister ? 'Already a member? Sign In' : 'New here? Create Account'}
                     </button>
                 </div>
             </div>

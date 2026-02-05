@@ -86,7 +86,7 @@ const CalorieCalculator: React.FC<CalorieCalculatorProps> = ({ onClose }) => {
                     </div>
                 </div>
 
-                <div className="p-6 space-y-6 overflow-y-auto">
+                <div className="p-6 pb-24 space-y-6 overflow-y-auto">
                     {/* Fuel Gauge (Only shows if there is a target) */}
                     {result && (
                         <div className="animate-slideDown">
