@@ -1,7 +1,7 @@
-import React from 'react';
-import { Trophy, Settings, Flame, Star, Target, ChevronRight, Share2, Crown, LogOut } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Trophy, Settings, Flame, Star, Target, ChevronRight, Share2, Crown, LogOut, Snowflake, Shield, AlertCircle } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ApiUser } from '../utils/api';
+import { ApiUser, contractApi, ContractStatus } from '../utils/api';
 
 const PROGRESS_DATA = [
   { month: 'Sep', value: 72 },
@@ -28,6 +28,53 @@ const getTierLabel = (tier: string): string => {
 };
 
 const Profile: React.FC<ProfileProps> = ({ user, onLogout }) => {
+  const [contractStatus, setContractStatus] = useState<ContractStatus | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  // Fetch contract status on mount
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const status = await contractApi.getStatus(user.id);
+        setContractStatus(status);
+      } catch (err) {
+        console.error('Failed to fetch contract status:', err);
+      }
+    };
+    fetchStatus();
+  }, [user.id]);
+
+  const handleFreeze = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await contractApi.freeze(user.id);
+      const status = await contractApi.getStatus(user.id);
+      setContractStatus(status);
+      setShowConfirmModal(false);
+    } catch (err: any) {
+      setError(err.message || 'Failed to freeze contract');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUnfreeze = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await contractApi.unfreeze(user.id);
+      const status = await contractApi.getStatus(user.id);
+      setContractStatus(status);
+    } catch (err: any) {
+      setError(err.message || 'Failed to unfreeze contract');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-8 pb-12 animate-fadeIn">
       {/* Header Profile Info */}
@@ -158,6 +205,139 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout }) => {
           ))}
         </div>
       </section>
+
+      {/* Contract Management */}
+      <section className="bg-[#121212]/60 backdrop-blur-xl border border-white/5 rounded-[2rem] p-6 animate-slideUp relative overflow-hidden" style={{ animationDelay: '350ms' }}>
+        {contractStatus?.isContractFrozen && (
+          <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 pointer-events-none" />
+        )}
+        <div className="absolute top-0 right-0 w-48 h-48 bg-cyan-500/5 blur-[60px] rounded-full pointer-events-none" />
+
+        <div className="flex items-center justify-between mb-6 relative z-10">
+          <div className="flex items-center gap-3">
+            <div className={`p-2.5 rounded-xl border ${contractStatus?.isContractFrozen
+              ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'
+              : 'bg-green-500/10 text-green-400 border-green-500/20'}`}>
+              {contractStatus?.isContractFrozen ? <Snowflake size={20} /> : <Shield size={20} />}
+            </div>
+            <div>
+              <h3 className="text-sm font-black uppercase italic tracking-wider text-white">Contract Status</h3>
+              <span className={`text-[10px] font-bold uppercase tracking-widest ${contractStatus?.isContractFrozen ? 'text-cyan-400' : 'text-green-400'
+                }`}>
+                {contractStatus?.status || 'Loading...'}
+              </span>
+            </div>
+          </div>
+          {contractStatus?.isContractFrozen && contractStatus.daysRemaining > 0 && (
+            <div className="text-right">
+              <span className="text-2xl font-black italic text-cyan-400">{contractStatus.daysRemaining}</span>
+              <span className="text-[9px] font-bold uppercase text-gray-400 tracking-widest block">Days Left</span>
+            </div>
+          )}
+        </div>
+
+        {/* Error message */}
+        {error && (
+          <div className="flex items-center gap-2 p-3 mb-4 bg-red-500/10 border border-red-500/20 rounded-xl relative z-10">
+            <AlertCircle size={16} className="text-red-400" />
+            <span className="text-sm text-red-400">{error}</span>
+          </div>
+        )}
+
+        {/* Frozen state info */}
+        {contractStatus?.isContractFrozen && (
+          <div className="p-4 bg-cyan-500/5 border border-cyan-500/10 rounded-2xl mb-4 relative z-10">
+            <p className="text-sm text-gray-300 mb-2">
+              Your contract is frozen until{' '}
+              <span className="text-cyan-400 font-bold">
+                {contractStatus.freezeEndDate
+                  ? new Date(contractStatus.freezeEndDate).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric'
+                  })
+                  : 'N/A'}
+              </span>
+            </p>
+            <p className="text-xs text-gray-500">During this period, your membership is paused and no fees will be charged.</p>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="relative z-10">
+          {contractStatus?.isContractFrozen ? (
+            <button
+              onClick={handleUnfreeze}
+              disabled={isLoading}
+              className="w-full py-4 px-6 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 rounded-xl font-black uppercase tracking-wider text-cyan-400 hover:text-cyan-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? 'Processing...' : '❄️ Unfreeze Contract Early'}
+            </button>
+          ) : contractStatus?.canFreeze ? (
+            <button
+              onClick={() => setShowConfirmModal(true)}
+              disabled={isLoading}
+              className="w-full py-4 px-6 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 border border-cyan-500/30 rounded-xl font-black uppercase tracking-wider text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              ❄️ Freeze Contract for 1 Month
+            </button>
+          ) : (
+            <div className="p-4 bg-white/5 border border-white/10 rounded-xl text-center">
+              <p className="text-sm text-gray-400">You have already used your contract freeze this year.</p>
+              <p className="text-xs text-gray-500 mt-1">This benefit resets annually.</p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Freeze Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#1a1a1a] border border-white/10 rounded-3xl p-6 max-w-md w-full shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-cyan-500/10 text-cyan-400 rounded-xl border border-cyan-500/20">
+                <Snowflake size={24} />
+              </div>
+              <h3 className="text-xl font-black uppercase italic text-white">Freeze Contract?</h3>
+            </div>
+            <p className="text-gray-300 mb-2">
+              Your membership will be paused for <span className="text-cyan-400 font-bold">one month</span>.
+            </p>
+            <ul className="text-sm text-gray-400 mb-6 space-y-1">
+              <li>• No access to gym facilities during freeze</li>
+              <li>• No membership fees charged</li>
+              <li>• You can only use this benefit once per year</li>
+              <li>• You can unfreeze early if needed</li>
+            </ul>
+
+            {error && (
+              <div className="flex items-center gap-2 p-3 mb-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                <AlertCircle size={16} className="text-red-400" />
+                <span className="text-sm text-red-400">{error}</span>
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowConfirmModal(false);
+                  setError(null);
+                }}
+                className="flex-1 py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl font-bold uppercase text-gray-300 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleFreeze}
+                disabled={isLoading}
+                className="flex-1 py-3 px-4 bg-cyan-500 hover:bg-cyan-400 rounded-xl font-bold uppercase text-black transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? 'Freezing...' : 'Confirm Freeze'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Secondary Actions */}
       <section className="space-y-3 animate-slideUp" style={{ animationDelay: '400ms' }}>

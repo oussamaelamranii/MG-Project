@@ -11,14 +11,16 @@ import SignIn from './pages/SignIn';
 import Community from './pages/Community';
 import Shop from './pages/Shop';
 import Arena from './pages/Arena';
+import { ThemeProvider, useTheme } from './utils/ThemeContext';
+import { RefreshCw } from 'lucide-react';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [user, setUser] = useState<ApiUser | null>(null);
   const [activePage, setActivePage] = useState<Page>(Page.HOME);
   const [showSmartPass, setShowSmartPass] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
-    // Check for existing session and user data
     const session = localStorage.getItem('mgclub_session');
     const storedUser = localStorage.getItem('mgclub_user');
 
@@ -27,7 +29,6 @@ const App: React.FC = () => {
         const parsedUser = JSON.parse(storedUser) as ApiUser;
         setUser(parsedUser);
       } catch {
-        // Invalid user data, clear session
         localStorage.removeItem('mgclub_session');
         localStorage.removeItem('mgclub_user');
       }
@@ -71,10 +72,24 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-[#121212] to-black text-white pb-24 relative overflow-hidden">
-      {/* Background Glows for High Contrast */}
-      <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-royal-blue/10 blur-[120px] rounded-full pointer-events-none" />
-      <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-punchy-yellow/5 blur-[120px] rounded-full pointer-events-none" />
+    <div className={`min-h-screen pb-24 relative overflow-hidden transition-colors duration-500 ${theme === 'cyberpunk' ? 'bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-[#121212] to-black text-white' : 'bg-punchy-yellow text-black'}`}>
+
+      {/* Theme Toggle */}
+      <button
+        onClick={toggleTheme}
+        className={`fixed top-4 right-4 z-[60] px-4 py-2 rounded-full font-black text-[10px] uppercase tracking-widest transition-all shadow-lg active:scale-95 flex items-center gap-2 ${theme === 'cyberpunk' ? 'bg-white/10 text-white border border-white/20 backdrop-blur-md' : 'bg-punchy-yellow text-black border-2 border-black'}`}
+      >
+        <RefreshCw size={12} className={theme === 'brand' ? 'animate-spin' : ''} />
+        {theme === 'cyberpunk' ? 'Pro Mode' : 'Cyber Mode'}
+      </button>
+
+      {/* Background Glows for Cyberpunk */}
+      {theme === 'cyberpunk' && (
+        <>
+          <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-royal-blue/10 blur-[120px] rounded-full pointer-events-none" />
+          <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-punchy-yellow/5 blur-[120px] rounded-full pointer-events-none" />
+        </>
+      )}
 
       {/* Main Content Area */}
       <main className="w-full max-w-md mx-auto px-4 pt-6 pb-28 animate-fadeIn">
@@ -89,5 +104,11 @@ const App: React.FC = () => {
     </div>
   );
 };
+
+const App: React.FC = () => (
+  <ThemeProvider>
+    <AppContent />
+  </ThemeProvider>
+);
 
 export default App;

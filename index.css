@@ -14,10 +14,53 @@ html {
     -webkit-tap-highlight-color: transparent;
 }
 
+:root {
+    --app-bg: #121212;
+    --app-text: #ffffff;
+    --card-bg: rgba(18, 18, 18, 0.6);
+    --card-border: rgba(255, 255, 255, 0.05);
+    --accent-blue: #0052CC;
+    --accent-yellow: #FFCC00;
+    --nav-bg: rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="brand"] {
+    --app-bg: #FFCC00;
+    /* Brand Yellow */
+    --app-text: #000000;
+    /* Black Text */
+    --card-bg: rgba(255, 255, 255, 0.4);
+    /* Glassy White on Yellow */
+    --card-border: #0052CC;
+    /* Blue Borders */
+    --accent-blue: #0052CC;
+    --accent-yellow: #000000;
+    --nav-bg: #0052CC;
+    /* Blue Nav */
+}
+
+/* Utilities */
+.text-primary {
+    color: var(--app-text);
+}
+
+.bg-app {
+    background-color: var(--app-bg);
+}
+
+.glass-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(20px);
+}
+
 body {
     overscroll-behavior-y: none;
     user-select: none;
     -webkit-user-select: none;
+    background-color: var(--app-bg);
+    color: var(--app-text);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Animations */
@@ -72,6 +115,7 @@ body {
         transform: translateX(100%);
         opacity: 0;
     }
+
     to {
         transform: translateX(0);
         opacity: 1;

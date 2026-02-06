@@ -45,6 +45,11 @@ export interface ApiUser {
   tier: 'Bronze' | 'Silver' | 'Gold' | 'Elite';
   streakDays: number;
   createdAt: string;
+  // Contract freeze fields
+  isContractFrozen: boolean;
+  freezeStartDate?: string;
+  freezeEndDate?: string;
+  hasUsedFreeze: boolean;
 }
 
 export interface ApiCoach {
@@ -338,6 +343,47 @@ export const healthApi = {
   async check(): Promise<{ status: string; timestamp: string }> {
     const response = await fetch('http://localhost:5094/health');
     return response.json();
+  },
+};
+
+// ============================================================================
+// Contract API
+// ============================================================================
+
+export interface ContractStatus {
+  status: 'Active' | 'Frozen';
+  isContractFrozen: boolean;
+  freezeStartDate?: string;
+  freezeEndDate?: string;
+  daysRemaining: number;
+  canFreeze: boolean;
+  hasUsedFreeze: boolean;
+}
+
+export interface ContractFreezeResponse {
+  message: string;
+  id: string;
+  isContractFrozen: boolean;
+  freezeStartDate?: string;
+  freezeEndDate?: string;
+  hasUsedFreeze: boolean;
+}
+
+export const contractApi = {
+  async freeze(userId: string): Promise<ContractFreezeResponse> {
+    return apiCall<ContractFreezeResponse>(`/users/${userId}/contract/freeze`, {
+      method: 'POST',
+    });
+  },
+
+  async unfreeze(userId: string): Promise<ContractFreezeResponse> {
+    return apiCall<ContractFreezeResponse>(`/users/${userId}/contract/unfreeze`, {
+      method: 'POST',
+    });
+  },
+
+  async getStatus(userId: string): Promise<ContractStatus> {
+    return apiCall<ContractStatus>(`/users/${userId}/contract/status`);
   },
 };
 

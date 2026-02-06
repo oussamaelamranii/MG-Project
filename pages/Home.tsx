@@ -43,10 +43,12 @@ const Home: React.FC<HomeProps> = ({ onOpenSmartPass, onNavigate, userId }) => {
       {/* Header */}
       <header className="flex items-center justify-between pb-2">
         <div>
-          <h1 className="text-4xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-gray-500 animate-slideInRight">
-            MGCLUB
-          </h1>
-          <p className="text-orange-500 text-xs font-bold uppercase tracking-[0.2em] animate-fadeIn" style={{ animationDelay: '200ms' }}>
+          <img
+            src="/mg-logo.jpg"
+            alt="MG Club Fitness"
+            className="h-12 w-auto object-contain animate-slideInRight"
+          />
+          <p className="text-royal-blue text-xs font-black uppercase tracking-[0.2em] animate-fadeIn pl-1" style={{ animationDelay: '200ms' }}>
             Performance Partner
           </p>
         </div>
@@ -95,11 +97,11 @@ const Home: React.FC<HomeProps> = ({ onOpenSmartPass, onNavigate, userId }) => {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <TrafficGauge percentage={traffic} />
-          <div className="bg-[#121212]/60 backdrop-blur-xl border border-white/5 rounded-3xl p-6 flex flex-col justify-between relative overflow-hidden group hover:border-white/10 transition-colors">
-            <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+          <div className="glass-card rounded-3xl p-6 flex flex-col justify-between relative overflow-hidden group transition-colors">
+            <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none ${true ? 'bg-gradient-to-b from-white/5 to-transparent' : ''}`} />
             <div>
-              <h4 className="font-bold text-sm uppercase text-gray-200 tracking-wider">Forecast</h4>
-              <p className="text-[10px] text-gray-500 uppercase mt-1">Peak: <span className="text-white font-bold">{peakHour}</span></p>
+              <h4 className="font-bold text-sm uppercase text-primary tracking-wider opacity-80">Forecast</h4>
+              <p className="text-[10px] text-primary opacity-60 uppercase mt-1">Peak: <span className="font-bold opacity-100">{peakHour}</span></p>
             </div>
             <div className="flex items-end justify-between gap-1 h-20 mt-4">
               {forecast.map((h, i) => (
@@ -125,14 +127,14 @@ const Home: React.FC<HomeProps> = ({ onOpenSmartPass, onNavigate, userId }) => {
           Community Highlight
           <span className="text-orange-500 text-[10px] cursor-pointer hover:text-white transition-colors" onClick={() => onNavigate(Page.COMMUNITY)}>View Tribe</span>
         </h3>
-        <div className="bg-[#121212]/60 backdrop-blur-xl border border-white/5 rounded-3xl overflow-hidden group cursor-pointer hover:border-orange-500/30 transition-all">
+        <div className="glass-card rounded-3xl overflow-hidden group cursor-pointer transition-all">
           <div className="relative h-48 overflow-hidden">
             <img
               src="https://picsum.photos/seed/mgclub/800/400"
               alt="Community event"
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent opacity-80" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80" />
             <div className="absolute bottom-4 left-4 flex items-center gap-3">
               <div className="p-1 rounded-full border border-orange-500 bg-black/50 backdrop-blur-sm">
                 <img src="https://i.pravatar.cc/150?u=coach" className="w-8 h-8 rounded-full" />
@@ -144,8 +146,8 @@ const Home: React.FC<HomeProps> = ({ onOpenSmartPass, onNavigate, userId }) => {
             </div>
           </div>
           <div className="p-5">
-            <p className="text-sm text-gray-300 leading-relaxed font-medium">
-              New CrossTraining equipment arriving this Friday! Get ready for a high-intensity weekend. <span className="text-white">#BeUnstoppable</span>
+            <p className="text-sm text-primary leading-relaxed font-medium">
+              New CrossTraining equipment arriving this Friday! Get ready for a high-intensity weekend. <span className="font-bold text-punchy-yellow">#BeUnstoppable</span>
             </p>
           </div>
         </div>
@@ -176,14 +178,14 @@ const Home: React.FC<HomeProps> = ({ onOpenSmartPass, onNavigate, userId }) => {
       <section className="grid grid-cols-2 gap-4 pb-12 animate-slideUp" style={{ animationDelay: '500ms' }}>
         <button
           onClick={() => setShowCalculator(true)}
-          className="bg-white/5 border border-white/10 hover:bg-white/10 rounded-3xl p-5 flex flex-col items-start gap-4 transition-all group"
+          className="glass-card rounded-3xl p-5 flex flex-col items-start gap-4 transition-all group"
         >
           <div className="bg-purple-500/20 p-3 rounded-2xl text-purple-400 group-hover:scale-110 transition-transform ring-1 ring-inset ring-purple-500/20">
             <Calculator size={24} />
           </div>
           <div>
-            <h4 className="font-bold text-sm text-white">Calorie<br />Estimator</h4>
-            <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">Plan Macros</p>
+            <h4 className="font-bold text-sm text-primary">Calorie<br />Estimator</h4>
+            <p className="text-[10px] text-primary opacity-60 mt-1 uppercase tracking-wider">Plan Macros</p>
           </div>
         </button>
 
